@@ -1,0 +1,48 @@
+/* 
+    Document   : style
+    Created on : Aug 25, 2012, 6:41:29 PM
+    Author     : maniac
+    Description:
+        Purpose of the stylesheet follows.
+*/
+body {
+  font-size: 48px;
+}
+span.head {
+  font-size: 32px;
+}
+span.head {
+  display: block;
+}
+div#indoor,
+div#outdoor {
+  width: 50%;
+}
+
+div#indoor {
+  padding-right: 0;
+}
+
+div#outdoor {
+  padding-left: 0;
+}
+
+div#indoor div,
+div#outdoor div {
+  width: 50%;
+}
+
+div#wind {
+  width: 100%;
+}
+div#wind div{
+  width: 25%;
+}
+
+div.section {
+  float: left;
+}
+div.section div {
+  float: left;
+}
+
