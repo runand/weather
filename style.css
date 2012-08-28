@@ -12,8 +12,8 @@ span.head {
   font-size: 32px;
   display: block;
 }
-span.min,
-span.max {
+span.minmax,
+span.label {
   font-size: 16px;
   display:block;
 }
@@ -47,7 +47,8 @@ div#outdoor div {
   width: 50%;
 }
 
-div#wind {
+div#wind,
+div#misc {
   width: 100%;
 }
 div#wind div{
@@ -61,4 +62,10 @@ div.section div {
   float: left;
   position: relative;
 }
+div#pressure {
+  width: 25%;
+}
 
+div#rain div {
+  padding-right: 8px;
+}

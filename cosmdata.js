@@ -6,7 +6,28 @@
 function winddirection(value) {
 //  DirTable = ["N","NNE","NE","ENE","E","ESE", "SE","SSE","S","SSW","SW","WSW", "W","WNW","NW","NNW","N"];
   DirTable = ["N","NNØ","NØ","ØNØ","Ø","ØSØ", "SØ","SSØ","S","SSV","SV","VSV", "V","VNV","NV","NNV","N"];
-  return DirTable[Math.floor((parseFloat(value)+11.25)/22.5)];
+  return DirTable[Math.floor((parseFloat(value.current_value)+11.25)/22.5)];
+}
+
+function raincount(value) {
+  current_value = parseFloat(value.current_value)
+  console.log(value)
+  array_offset = 24
+  hour = parseFloat(value.datapoints[array_offset - 1].value) - current_value
+  sixhours = parseFloat(value.datapoints[array_offset - 6].value) - current_value
+  twelvehours = parseFloat(value.datapoints[array_offset - 12].value) - current_value
+  day = parseFloat(value.datapoints[array_offset - 24].value) - current_value
+
+  output = rainvaluewrapper(hour, '1 time', value)
+  output += rainvaluewrapper(sixhours, '6 timer', value)
+  output += rainvaluewrapper(twelvehours, '12 timer', value)
+  output += rainvaluewrapper(day, '1 døgn', value)
+
+  return output 
+}
+
+function rainvaluewrapper(value, text, config) {
+  return '<div>' + value + config.unit.label + '<span class="label">' + text + '</span></div>'
 }
 
 $(document).ready(function(){
@@ -20,6 +41,7 @@ $(document).ready(function(){
       "PRES" : {'div' : 'pressure'},
       "TC" : {'div' : 'windtemp'},
       "WD" : {'div' : 'winddirection', 'themefunction' : winddirection, 'minmax' : false},
+      "RC" : {'div' : 'rain', 'themefunction' : raincount, 'minmax' : false},
       "WG" : {'div' : 'windgust'},
       "WS" : {'div' : 'windspeed'}
     }
@@ -46,19 +68,20 @@ $(document).ready(function(){
 
         divhtml = '<span class="head">' + this.tags[0] + '</span>';
         if (config[this.id].themefunction !== undefined) {
-          divhtml += config[this.id].themefunction(this.current_value)
+          divhtml += config[this.id].themefunction(this)
         }
         else {
           divhtml += this.current_value + ' ' + this.unit.label;
         }
-          if (config[this.id].minmax !== false) {
 
-            minmax = '<span class="min">Min: ' + min + this.unit.label + ' - Max: ' + max + this.unit.label + '</span>'  
-          }
-          else {
-            minmax = ''
-          }
-          $('#' + [config[this.id].div]).html(divhtml + minmax);
+        if (config[this.id].minmax !== false) {
+          minmax = '<span class="minmax">Min: ' + min + this.unit.label + ' - Max: ' + max + this.unit.label + '</span>'  
+        }
+        else {
+          minmax = ''
+        }
+
+        $('#' + [config[this.id].div]).html(divhtml + minmax);
       }
     })
   });
