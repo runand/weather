@@ -11,7 +11,7 @@ function winddirection(value) {
 
 $(document).ready(function(){
   key = {'key' : 'o5SuhRYID45Pko9SN2qtlVNVuN6SAKxVOHVSdWoxcFZYND0g'}
-  $.getJSON("http://api.cosm.com/v2/feeds/44233.json", key, function (data) {
+  $.getJSON("http://api.cosm.com/v2/feeds/44233.json?duration=24hour&interval=3600&per_page=1000", key, function (data) {
     var config = {
       "T0" : {'div' : 'indoortemp'},
       "H0" : {'div' : 'indoorhumid'},
@@ -19,12 +19,31 @@ $(document).ready(function(){
       "H1" : {'div' : 'outdoorhumid'},
       "PRES" : {'div' : 'pressure'},
       "TC" : {'div' : 'windtemp'},
-      "WD" : {'div' : 'winddirection', 'themefunction' : winddirection},
+      "WD" : {'div' : 'winddirection', 'themefunction' : winddirection, 'minmax' : false},
       "WG" : {'div' : 'windgust'},
       "WS" : {'div' : 'windspeed'}
     }
-    $.each(eval(data.datastreams), function(){
+    $.each(data.datastreams, function(){
       if (config[this.id] !== undefined) {
+        var min
+        var max
+        $.each(this.datapoints, function(){
+          current_value = parseFloat(this.value)
+          if (min === undefined || current_value < min) {
+            min = current_value
+          }
+          if (max === undefined || current_value > max) {
+            max = current_value
+          }
+        });
+
+        if (this.current_value < min) {
+          min = this.current_value;
+        } 
+        if (this.current_value > max) {
+          max = this.current_value;
+        } 
+
         divhtml = '<span class="head">' + this.tags[0] + '</span>';
         if (config[this.id].themefunction !== undefined) {
           divhtml += config[this.id].themefunction(this.current_value)
@@ -32,7 +51,14 @@ $(document).ready(function(){
         else {
           divhtml += this.current_value + ' ' + this.unit.label;
         }
-          $('#' + [config[this.id].div]).html(divhtml);
+          if (config[this.id].minmax !== false) {
+
+            minmax = '<span class="min">Min: ' + min + this.unit.label + ' - Max: ' + max + this.unit.label + '</span>'  
+          }
+          else {
+            minmax = ''
+          }
+          $('#' + [config[this.id].div]).html(divhtml + minmax);
       }
     })
   });

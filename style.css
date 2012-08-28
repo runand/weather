@@ -10,10 +10,25 @@ body {
 }
 span.head {
   font-size: 32px;
-}
-span.head {
   display: block;
 }
+span.min,
+span.max {
+  font-size: 16px;
+  display:block;
+}
+/*
+span.min {
+  position: absolute;
+  top: 32px;
+  right: 0;
+}
+span.max {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+*/
 div#indoor,
 div#outdoor {
   width: 50%;
@@ -44,5 +59,6 @@ div.section {
 }
 div.section div {
   float: left;
+  position: relative;
 }
 
