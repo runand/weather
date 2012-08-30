@@ -13,15 +13,15 @@ function raincount(value) {
   current_value = parseFloat(value.current_value)
   console.log(value)
   array_offset = 24
-  hour = parseFloat(value.datapoints[array_offset - 1].value) - current_value
-  sixhours = parseFloat(value.datapoints[array_offset - 6].value) - current_value
-  twelvehours = parseFloat(value.datapoints[array_offset - 12].value) - current_value
-  day = parseFloat(value.datapoints[array_offset - 24].value) - current_value
+  hour = current_value - parseFloat(value.datapoints[array_offset - 1].value)
+  sixhours = current_value - parseFloat(value.datapoints[array_offset - 6].value)
+  twelvehours = current_value - parseFloat(value.datapoints[array_offset - 12].value)
+  day = current_value - parseFloat(value.datapoints[array_offset - 24].value)
 
-  output = rainvaluewrapper(hour, '1 time', value)
-  output += rainvaluewrapper(sixhours, '6 timer', value)
-  output += rainvaluewrapper(twelvehours, '12 timer', value)
-  output += rainvaluewrapper(day, '1 døgn', value)
+  output = rainvaluewrapper(hour.toFixed(1), '1 time', value)
+  output += rainvaluewrapper(sixhours.toFixed(1), '6 timer', value)
+  output += rainvaluewrapper(twelvehours.toFixed(1), '12 timer', value)
+  output += rainvaluewrapper(day.toFixed(1), '1 døgn', value)
 
   return output 
 }
