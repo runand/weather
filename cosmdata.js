@@ -11,7 +11,6 @@ function winddirection(value) {
 
 function raincount(value) {
   current_value = parseFloat(value.current_value)
-  console.log(value)
   array_offset = 24
   hour = current_value - parseFloat(value.datapoints[array_offset - 1].value)
   sixhours = current_value - parseFloat(value.datapoints[array_offset - 6].value)
@@ -32,7 +31,9 @@ function rainvaluewrapper(value, text, config) {
 
 $(document).ready(function(){
   key = {'key' : 'o5SuhRYID45Pko9SN2qtlVNVuN6SAKxVOHVSdWoxcFZYND0g'}
-  $.getJSON("http://api.cosm.com/v2/feeds/44233.json?duration=24hour&interval=3600&per_page=1000", key, function (data) {
+  hour = 24
+  interval = 1800
+  $.getJSON("http://api.cosm.com/v2/feeds/44233.json?duration=" + hour + "hour&interval=" + interval + "&per_page=1000", key, function (data) {
     var config = {
       "T0" : {'div' : 'indoortemp'},
       "H0" : {'div' : 'indoorhumid'},
@@ -45,12 +46,19 @@ $(document).ready(function(){
       "WG" : {'div' : 'windgust'},
       "WS" : {'div' : 'windspeed'}
     }
-    $.each(data.datastreams, function(){
+    $.each(data.datastreams, function(key){
       if (config[this.id] !== undefined) {
         var min
         var max
-        $.each(this.datapoints, function(){
+        var dataarray = new Array();
+        var timestamp = new Date();
+        length = this.datapoints.length
+        $.each(this.datapoints, function(key){
           current_value = parseFloat(this.value)
+          console.log(timestamp.getTimezoneOffset() );
+          time = (timestamp.getTime()) - ((length-key)*interval*1000) - timestamp.getTimezoneOffset() * 60 * 1000 ;
+
+          dataarray.push([time, current_value])
           if (min === undefined || current_value < min) {
             min = current_value
           }
@@ -59,6 +67,7 @@ $(document).ready(function(){
           }
         });
 
+     $.jStorage.set(this.id, {label: this.tags[0], unit: this.unit.label, data: JSON.stringify(dataarray)})
         if (this.current_value < min) {
           min = this.current_value;
         } 
@@ -84,5 +93,18 @@ $(document).ready(function(){
         $('#' + [config[this.id].div]).html(divhtml + minmax);
       }
     })
-  });
+  }, hour, interval);
+
+  temperatur = $.jStorage.get('T1');
+  temperatur.data = JSON.parse(temperatur.data);
+  temperatur0 = $.jStorage.get('T0');
+  temperatur0.data = JSON.parse(temperatur0.data);
+
+  var options = {
+    xaxis: {
+      mode: 'time'
+    }
+  };
+  console.debug(temperatur)
+  $.plot($("#placeholder"), [temperatur, temperatur0], options);
 });
