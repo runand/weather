@@ -9,13 +9,15 @@ function winddirection(value) {
   return DirTable[Math.floor((parseFloat(value.current_value)+11.25)/22.5)];
 }
 
-function raincount(value) {
+function raincount(value, hour, interval) {
   current_value = parseFloat(value.current_value)
-  array_offset = 24
-  hour = current_value - parseFloat(value.datapoints[array_offset - 1].value)
-  sixhours = current_value - parseFloat(value.datapoints[array_offset - 6].value)
-  twelvehours = current_value - parseFloat(value.datapoints[array_offset - 12].value)
-  day = current_value - parseFloat(value.datapoints[array_offset - 24].value)
+  array_offset = 3600 / interval * hour
+  
+  console.log(value.datapoints);
+  hour = current_value - parseFloat(value.datapoints[array_offset - 2].value)
+  sixhours = current_value - parseFloat(value.datapoints[array_offset - 12].value)
+  twelvehours = current_value - parseFloat(value.datapoints[array_offset - 24].value)
+  day = current_value - parseFloat(value.datapoints[array_offset - 48].value)
 
   output = rainvaluewrapper(hour.toFixed(1), '1 time', value)
   output += rainvaluewrapper(sixhours.toFixed(1), '6 timer', value)
@@ -55,7 +57,6 @@ $(document).ready(function(){
         length = this.datapoints.length
         $.each(this.datapoints, function(key){
           current_value = parseFloat(this.value)
-          console.log(timestamp.getTimezoneOffset() );
           time = (timestamp.getTime()) - ((length-key)*interval*1000) - timestamp.getTimezoneOffset() * 60 * 1000 ;
 
           dataarray.push([time, current_value])
@@ -77,7 +78,7 @@ $(document).ready(function(){
 
         divhtml = '<span class="head">' + this.tags[0] + '</span>';
         if (config[this.id].themefunction !== undefined) {
-          divhtml += config[this.id].themefunction(this)
+          divhtml += config[this.id].themefunction(this, hour, interval)
         }
         else {
           divhtml += this.current_value + ' ' + this.unit.label;
@@ -105,6 +106,5 @@ $(document).ready(function(){
       mode: 'time'
     }
   };
-  console.debug(temperatur)
   $.plot($("#placeholder"), [temperatur, temperatur0], options);
 });
