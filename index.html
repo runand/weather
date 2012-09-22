@@ -5,11 +5,23 @@ and open the template in the editor.
 <!DOCTYPE html>
 <html>
   <head>
-    <title></title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+    <title>Vejrstation</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
    <script src="jquery.flot.min.js"></script>
     <script src="cosmdata.js"></script>
     <script src="https://raw.github.com/andris9/jStorage/master/jstorage.js"></script>
+    <script>
+          $('document').ready(function(){
+      // Set a timeout...
+      setTimeout(function(){
+        // Hide the address bar!
+        window.scrollTo(0, 1);
+      }, 0);
+    });
+    </script>
     <link rel="stylesheet" href="style.css"></style>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   </head>
