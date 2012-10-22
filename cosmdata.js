@@ -54,19 +54,21 @@ $(document).ready(function(){
         var max
         var dataarray = new Array();
         var timestamp = new Date();
-        length = this.datapoints.length
-        $.each(this.datapoints, function(key){
-          current_value = parseFloat(this.value)
-          time = (timestamp.getTime()) - ((length-key)*interval*1000) - timestamp.getTimezoneOffset() * 60 * 1000 ;
+        if (this.datapoints !== undefined) {
+          length = this.datapoints.length
+          $.each(this.datapoints, function(key){
+            current_value = parseFloat(this.value)
+            time = (timestamp.getTime()) - ((length-key)*interval*1000) - timestamp.getTimezoneOffset() * 60 * 1000 ;
 
-          dataarray.push([time, current_value])
-          if (min === undefined || current_value < min) {
-            min = current_value
-          }
-          if (max === undefined || current_value > max) {
-            max = current_value
-          }
-        });
+            dataarray.push([time, current_value])
+            if (min === undefined || current_value < min) {
+              min = current_value
+            }
+            if (max === undefined || current_value > max) {
+              max = current_value
+            }
+          });
+        }
 
      $.jStorage.set(this.id, {label: this.tags[0], unit: this.unit.label, data: JSON.stringify(dataarray)})
         if (this.current_value < min) {
