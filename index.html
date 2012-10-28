@@ -39,10 +39,13 @@
     <div id="misc" class="section">
       <div id="pressure"></div>
       <div id="rain"></div>
+      <div id="monthrain"></div>
+      <div id="daysnorain"></div>
     </div>
     <div class="graphwrapper">
      <div id="placeholder"></div>
     </div>
     <script src="http://api.cosm.com/v2/feeds/44233.json?duration=24hour&interval=1800&per_page=1000&key=o5SuhRYID45Pko9SN2qtlVNVuN6SAKxVOHVSdWoxcFZYND0g&callback=cosmDataCallback"></script>
+    <script src="http://api.cosm.com/v2/feeds/44233/datastreams/RC.json?duration=1month&interval=86400&per_page=30&key=o5SuhRYID45Pko9SN2qtlVNVuN6SAKxVOHVSdWoxcFZYND0g&callback=cosmRainCallback"></script>
   </body>
 </html>

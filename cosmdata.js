@@ -10,35 +10,69 @@ function winddirection(value) {
 }
 
 function raincount(value, hour, interval) {
-  current_value = parseFloat(value.current_value)
-  array_offset = 3600 / interval * hour
-  
-  hour = current_value - parseFloat(value.datapoints[array_offset - 2].value)
-  sixhours = current_value - parseFloat(value.datapoints[array_offset - 12].value)
-  twelvehours = current_value - parseFloat(value.datapoints[array_offset - 24].value)
-  day = current_value - parseFloat(value.datapoints[array_offset - 48].value)
+  value.datapoints.reverse()
 
-  output = rainvaluewrapper(hour.toFixed(1), '1 time', value)
-  output += rainvaluewrapper(sixhours.toFixed(1), '6 timer', value)
-  output += rainvaluewrapper(twelvehours.toFixed(1), '12 timer', value)
-  output += rainvaluewrapper(day.toFixed(1), '1 døgn', value)
+  current_value = parseFloat(value.current_value)
+
+  output = ''
+  if (value.datapoints[2]) {
+    hour = current_value - parseFloat(value.datapoints[2].value)
+    output = rainvaluewrapper(hour.toFixed(1), '1 time', value)
+  }
+  if (value.datapoints[12]) {
+    sixhours = current_value - parseFloat(value.datapoints[12].value)
+    output += rainvaluewrapper(sixhours.toFixed(1), '6 timer', value)
+  }
+  if (value.datapoints[24]) {
+    twelvehours = current_value - parseFloat(value.datapoints[24].value)
+    output += rainvaluewrapper(twelvehours.toFixed(1), '12 timer', value)
+  }
+  if (value.datapoints[48]) {
+    day = current_value - parseFloat(value.datapoints[48].value)  
+    output += rainvaluewrapper(day.toFixed(1), '1 døgn', value)
+  }
 
   return output 
 }
 
 function rainvaluewrapper(value, text, config) {
-  return '<div>' + value + config.unit.label + '<span class="label">' + text + '</span></div>'
+  return '<div>' + value + '<span class="label">' + text + '</span></div>'
+}
+function cosmRainCallback(data) {
+  data.datapoints.reverse()
+  interval = 86400;
+  daycount = 0;
+  count = 0;
+
+  var today = new Date();
+  var firstofcurrent = new Date( today.getUTCFullYear(), today.getUTCMonth(), 1 ).getTime();
+
+    $.each(data.datapoints, function(){
+    
+    if (parseFloat(data.current_value) == parseFloat(this.value)) {
+      daycount ++
+    }
+
+    if (firstofcurrent/1000 < ((today.getTime() / 1000) - count * interval)) {
+      count ++
+    }
+
+  })
+  monthrain = data.current_value - data.datapoints[count].value
+  $('#rain').append('<div>' + monthrain + '<span class="label">Denne måned</span></div>')
+  $('#daysnorain').html('<div><span class="head">Dage uden regn</span>' + daycount + '</div>')
+  
 }
 
 function cosmDataCallback(data) {
   hour = 24
   interval = 1800
   var config = {
-    "T0" : {'div' : 'indoortemp', 'plot' : true},
+    "T0" : {'div' : 'indoortemp', 'plot' : true, 'axis' : 1},
     "H0" : {'div' : 'indoorhumid'},
-    "T1" : {'div' : 'outdoortemp', 'plot' : true},
+    "T1" : {'div' : 'outdoortemp', 'plot' : true, 'axis' : 1},
     "H1" : {'div' : 'outdoorhumid'},
-    "PRES" : {'div' : 'pressure'},
+    "PRES" : {'div' : 'pressure', 'plot' : true, 'axis' : 2},
     "TC" : {'div' : 'windtemp'},
     "WD" : {'div' : 'winddirection', 'themefunction' : winddirection, 'minmax' : false},
     "RC" : {'div' : 'rain', 'themefunction' : raincount, 'minmax' : false},
@@ -71,7 +105,7 @@ function cosmDataCallback(data) {
     }
     
     if (config[this.id].plot == true) {
-      plots.push({label: this.tags[0], unit: this.unit.label, data: dataarray})
+      plots.push({label: this.tags[0], unit: this.unit.label, data: dataarray, yaxis : config[this.id].axis})
     }
     
     if (this.current_value < min) {
@@ -99,11 +133,19 @@ function cosmDataCallback(data) {
     $('#' + [config[this.id].div]).html(divhtml + minmax);
   }
   })         
-          
+  
   var options = {
     xaxis: {
       mode: 'time'
-    }
+    },
+    yaxes: [
+      {
+        // align if we are to the right
+        alignTicksWithAxis: 0,
+        position: 'right'
+        
+      } ],
+    legend: { position: 'nw' }
   };
   
   $.plot($("#placeholder"), plots, options);

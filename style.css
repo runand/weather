@@ -6,7 +6,9 @@
         Purpose of the stylesheet follows.
 */
 body {
-  font-size: 48px;
+  font-size: 36px;
+
+
 }
 span.head {
   font-size: 32px;
@@ -14,7 +16,7 @@ span.head {
 }
 span.minmax,
 span.label {
-  font-size: 16px;
+  font-size: 15px;
   display:block;
 }
 /*
@@ -65,12 +67,16 @@ div#pressure {
   width: 25%;
 }
 
+div#rain {
+  width: 50%
+}
 div#rain div {
   padding-right: 8px;
+  width: 18%
 }
 
 div#placeholder {
-  width: 100%;
+  width: 98%;
   height: 300px;
   position: absolute;
   
@@ -87,4 +93,8 @@ div.graphwrapper {
   font-size: 18px;
 }
 .legend div {
+}
+
+.graph  {
+  background: #fe9800
 }
