@@ -13,7 +13,6 @@ function raincount(value, hour, interval) {
   current_value = parseFloat(value.current_value)
   array_offset = 3600 / interval * hour
   
-  console.log(value.datapoints);
   hour = current_value - parseFloat(value.datapoints[array_offset - 2].value)
   sixhours = current_value - parseFloat(value.datapoints[array_offset - 12].value)
   twelvehours = current_value - parseFloat(value.datapoints[array_offset - 24].value)
@@ -31,82 +30,81 @@ function rainvaluewrapper(value, text, config) {
   return '<div>' + value + config.unit.label + '<span class="label">' + text + '</span></div>'
 }
 
-$(document).ready(function(){
-  key = {'key' : 'o5SuhRYID45Pko9SN2qtlVNVuN6SAKxVOHVSdWoxcFZYND0g'}
+function cosmDataCallback(data) {
   hour = 24
   interval = 1800
-  $.getJSON("http://api.cosm.com/v2/feeds/44233.json?duration=" + hour + "hour&interval=" + interval + "&per_page=1000", key, function (data) {
-    var config = {
-      "T0" : {'div' : 'indoortemp'},
-      "H0" : {'div' : 'indoorhumid'},
-      "T1" : {'div' : 'outdoortemp'},
-      "H1" : {'div' : 'outdoorhumid'},
-      "PRES" : {'div' : 'pressure'},
-      "TC" : {'div' : 'windtemp'},
-      "WD" : {'div' : 'winddirection', 'themefunction' : winddirection, 'minmax' : false},
-      "RC" : {'div' : 'rain', 'themefunction' : raincount, 'minmax' : false},
-      "WG" : {'div' : 'windgust'},
-      "WS" : {'div' : 'windspeed'}
+  var config = {
+    "T0" : {'div' : 'indoortemp', 'plot' : true},
+    "H0" : {'div' : 'indoorhumid'},
+    "T1" : {'div' : 'outdoortemp', 'plot' : true},
+    "H1" : {'div' : 'outdoorhumid'},
+    "PRES" : {'div' : 'pressure'},
+    "TC" : {'div' : 'windtemp'},
+    "WD" : {'div' : 'winddirection', 'themefunction' : winddirection, 'minmax' : false},
+    "RC" : {'div' : 'rain', 'themefunction' : raincount, 'minmax' : false},
+    "WG" : {'div' : 'windgust'},
+    "WS" : {'div' : 'windspeed'}
+  }
+  
+   var plots = new Array();
+  
+  $.each(data.datastreams, function(key){
+  if (config[this.id] !== undefined) {
+    var min
+    var max
+    var dataarray = new Array();
+    var timestamp = new Date();
+    if (this.datapoints !== undefined) {
+      length = this.datapoints.length
+      $.each(this.datapoints, function(key){
+        current_value = parseFloat(this.value)
+        time = (timestamp.getTime()) - ((length-key)*interval*1000) - timestamp.getTimezoneOffset() * 60 * 1000 ;
+
+        dataarray.push([time, current_value])
+        if (min === undefined || current_value < min) {
+          min = current_value
+        }
+        if (max === undefined || current_value > max) {
+          max = current_value
+        }
+      });
     }
-    $.each(data.datastreams, function(key){
-      if (config[this.id] !== undefined) {
-        var min
-        var max
-        var dataarray = new Array();
-        var timestamp = new Date();
-        if (this.datapoints !== undefined) {
-          length = this.datapoints.length
-          $.each(this.datapoints, function(key){
-            current_value = parseFloat(this.value)
-            time = (timestamp.getTime()) - ((length-key)*interval*1000) - timestamp.getTimezoneOffset() * 60 * 1000 ;
+    
+    if (config[this.id].plot == true) {
+      plots.push({label: this.tags[0], unit: this.unit.label, data: dataarray})
+    }
+    
+    if (this.current_value < min) {
+      min = this.current_value;
+    } 
+    if (this.current_value > max) {
+      max = this.current_value;
+    } 
 
-            dataarray.push([time, current_value])
-            if (min === undefined || current_value < min) {
-              min = current_value
-            }
-            if (max === undefined || current_value > max) {
-              max = current_value
-            }
-          });
-        }
+    divhtml = '<span class="head">' + this.tags[0] + '</span>';
+    if (config[this.id].themefunction !== undefined) {
+      divhtml += config[this.id].themefunction(this, hour, interval)
+    }
+    else {
+      divhtml += this.current_value + ' ' + this.unit.label;
+    }
 
-     $.jStorage.set(this.id, {label: this.tags[0], unit: this.unit.label, data: JSON.stringify(dataarray)})
-        if (this.current_value < min) {
-          min = this.current_value;
-        } 
-        if (this.current_value > max) {
-          max = this.current_value;
-        } 
+    if (config[this.id].minmax !== false) {
+      minmax = '<span class="minmax">Min: ' + min + this.unit.label + ' - Max: ' + max + this.unit.label + '</span>'  
+    }
+    else {
+      minmax = ''
+    }
 
-        divhtml = '<span class="head">' + this.tags[0] + '</span>';
-        if (config[this.id].themefunction !== undefined) {
-          divhtml += config[this.id].themefunction(this, hour, interval)
-        }
-        else {
-          divhtml += this.current_value + ' ' + this.unit.label;
-        }
-
-        if (config[this.id].minmax !== false) {
-          minmax = '<span class="minmax">Min: ' + min + this.unit.label + ' - Max: ' + max + this.unit.label + '</span>'  
-        }
-        else {
-          minmax = ''
-        }
-
-        $('#' + [config[this.id].div]).html(divhtml + minmax);
-      }
-    })
-  }, hour, interval);
-
-  temperatur = $.jStorage.get('T1');
-  temperatur.data = JSON.parse(temperatur.data);
-  temperatur0 = $.jStorage.get('T0');
-  temperatur0.data = JSON.parse(temperatur0.data);
-
+    $('#' + [config[this.id].div]).html(divhtml + minmax);
+  }
+  })         
+          
   var options = {
     xaxis: {
       mode: 'time'
     }
   };
-  $.plot($("#placeholder"), [temperatur, temperatur0], options);
-});
+  
+  $.plot($("#placeholder"), plots, options);
+}
