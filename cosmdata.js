@@ -27,8 +27,8 @@ function raincount(value, hour, interval) {
     twelvehours = current_value - parseFloat(value.datapoints[24].value)
     output += rainvaluewrapper(twelvehours.toFixed(1), '12 timer', value)
   }
-  if (value.datapoints[48]) {
-    day = current_value - parseFloat(value.datapoints[48].value)  
+  if (value.datapoints[47]) {
+    day = current_value - parseFloat(value.datapoints[47].value)  
     output += rainvaluewrapper(day.toFixed(1), '1 døgn', value)
   }
 
@@ -48,8 +48,8 @@ function cosmRainCallback(data) {
   var firstofcurrent = new Date( today.getUTCFullYear(), today.getUTCMonth(), 1 ).getTime();
 
     $.each(data.datapoints, function(){
-    
-    if (parseFloat(data.current_value) == parseFloat(this.value)) {
+      
+    if (parseFloat(data.current_value) <= parseFloat(this.value)) {
       daycount ++
     }
 
@@ -58,7 +58,8 @@ function cosmRainCallback(data) {
     }
 
   })
-  monthrain = data.current_value - data.datapoints[count].value
+
+  monthrain = data.current_value - data.datapoints[count - 1].value
   $('#rain').append('<div>' + monthrain + '<span class="label">Denne måned</span></div>')
   $('#daysnorain').html('<div><span class="head">Dage uden regn</span>' + daycount + '</div>')
   
