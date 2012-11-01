@@ -13,7 +13,7 @@ function raincount(value, hour, interval) {
   value.datapoints.reverse()
 
   current_value = parseFloat(value.current_value)
-
+  
   output = ''
   if (value.datapoints[2]) {
     hour = current_value - parseFloat(value.datapoints[2].value)
@@ -60,8 +60,8 @@ function cosmRainCallback(data) {
   })
 
   monthrain = data.current_value - data.datapoints[count - 1].value
-  $('#rain').append('<div>' + monthrain + '<span class="label">Denne måned</span></div>')
-  $('#daysnorain').html('<div><span class="head">Dage uden regn</span>' + daycount + '</div>')
+  $('#rain').append('<div>' + monthrain.toFixed(1) + '<span class="label">Denne måned</span></div>')
+  $('#daysnorain').append('<div><span class="head">Dage uden regn</span>' + daycount + '</div>')
   
 }
 
